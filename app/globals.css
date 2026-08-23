@@ -1,0 +1,36 @@
+/* Fathom UI ships the design tokens (--fathom-*) and component styles. Pulse
+   consumes them, then Tailwind (below) maps semantic colors onto the same
+   variables so the whole app themes from one contract. */
+@import "@engraya/fathom-ui/styles.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: var(--fathom-font, ui-sans-serif, system-ui, sans-serif);
+  /* Chart ink that adapts to the theme. */
+  --pulse-grid: color-mix(in srgb, var(--fathom-fg) 12%, transparent);
+  --pulse-axis: var(--fathom-fg-muted);
+}
+
+html,
+body {
+  background: var(--fathom-bg);
+  color: var(--fathom-fg);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Respect users who ask for less motion — disable the live-feed transitions. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  guards:
+    name: Security guards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # A past incident on sibling repos appended obfuscated malware to a config
+      # file. Config files should be tiny — fail if any grows suspiciously large.
+      - name: Config files stay small (<= 4KB)
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            size=$(wc -c < "$f")
+            if [ "$size" -gt 4096 ]; then
+              echo "::error file=$f::Config file $f is ${size} bytes (> 4096). Investigate before merging."
+              fail=1
+            fi
+          done < <(git ls-files '*.config.*')
+          exit $fail
+
+      - name: No .env files committed
+        run: |
+          if git ls-files --error-unmatch '.env' '.env.*' 2>/dev/null | grep -v '.env.example'; then
+            echo "::error::A .env file is tracked in git. Remove it and rotate any exposed secrets."
+            exit 1
+          fi
+          echo "No tracked .env files."
+
+  verify:
+    name: Typecheck · Lint · Test · Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build
+
+  e2e:
+    name: Playwright smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run e2e
