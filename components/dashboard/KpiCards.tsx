@@ -20,12 +20,15 @@ interface CardSpec {
 function DeltaBadge({ metric, invert }: { metric: Metric; invert?: boolean }) {
   const { delta } = metric;
   if (delta === null) return <Badge variant="neutral">—</Badge>;
-  const rising = delta > 0;
-  const good = invert ? !rising : rising;
-  const variant = delta === 0 ? "neutral" : good ? "success" : "danger";
+  // Movements below 0.05% round to "0.0%" — show them as flat, not a red −0.0%.
+  const flat = Math.abs(delta) < 0.0005;
+  const rising = !flat && delta > 0;
+  const falling = !flat && delta < 0;
+  const good = invert ? falling : rising;
+  const variant = flat ? "neutral" : good ? "success" : "danger";
   return (
     <Badge variant={variant}>
-      {rising ? "▲" : delta < 0 ? "▼" : "•"} {formatDelta(delta)}
+      {rising ? "▲" : falling ? "▼" : "•"} {formatDelta(flat ? 0 : delta)}
     </Badge>
   );
 }

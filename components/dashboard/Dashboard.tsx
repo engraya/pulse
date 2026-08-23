@@ -148,12 +148,16 @@ export function Dashboard() {
             <ChartCard
               title="Top routes"
               subtitle="Click a route to filter the dashboard"
-              className="lg:col-span-2"
+              className="lg:col-span-3"
             >
               <RouteBars rows={view.routeRows} activeRouteId={routeId} onSelect={setRouteId} />
             </ChartCard>
 
-            <ChartCard title="Live transactions" subtitle={`${view.feed.length.toLocaleString()} in range`}>
+            <ChartCard
+              title="Live transactions"
+              subtitle={`${view.feed.length.toLocaleString()} in range`}
+              className="lg:col-span-3"
+            >
               <LiveTransactions transactions={view.feed} />
             </ChartCard>
           </div>

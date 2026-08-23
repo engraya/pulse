@@ -12,9 +12,11 @@ export const dynamic = "force-dynamic";
 
 export function GET(request: Request) {
   const url = new URL(request.url);
-  const days = clamp(Number(url.searchParams.get("days")) || 60, 7, 120);
+  const days = clamp(Number(url.searchParams.get("days")) || 60, 7, 60);
   const to = Date.now();
-  const from = to - days * DAY;
+  // Generate twice the requested window so the dashboard's "vs previous period"
+  // deltas always have a fully-populated comparison window to measure against.
+  const from = to - days * 2 * DAY;
   const transactions = generateTransactions({
     seed: 1337,
     from,

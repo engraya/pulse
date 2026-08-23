@@ -64,9 +64,7 @@ export function DonutChart({ slices }: { slices: ProviderSlice[] }) {
               <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: PROVIDER_COLOR[s.provider] }} />
               <span className="text-fg">{PROVIDER_LABEL[s.provider]}</span>
             </span>
-            <span className="tabular-nums text-muted">
-              {formatPercent(s.pct)} · {formatNumber(s.count)}
-            </span>
+            <span className="whitespace-nowrap tabular-nums text-muted">{formatPercent(s.pct)}</span>
           </li>
         ))}
       </ul>
