@@ -22,8 +22,9 @@ The domain — intercity transport payments across Paystack / Monnify / Nomba �
 - **Revenue-over-time area chart** with an interactive hover guide and tooltip.
 - **Payment-provider donut** showing revenue share, with hover-to-focus.
 - **Top-routes bar chart** where each bar is a real button that cross-filters the dashboard.
-- **Virtualized live-transactions feed** (`@tanstack/react-virtual`) that streams new payments in real time — thousands of rows, only the visible ones in the DOM.
+- **Live transactions table** streaming new payments in real time, with **filtering** (status, provider) and **pagination** — and a fully responsive layout (a real `<table>` on desktop, a stacked list on mobile).
 - **Date-range presets and a route filter** synced to the URL.
+- **Responsive across screens** — no horizontal scroll from mobile to widescreen.
 - **Light / dark theme** driven entirely by Fathom UI's CSS-variable tokens.
 - **Reduced-motion aware** and keyboard-operable throughout.
 
@@ -40,7 +41,7 @@ The domain — intercity transport payments across Paystack / Monnify / Nomba �
 
 ## Tech stack
 
-Next.js 14 (App Router) · React 18 · TypeScript (strict, `noUncheckedIndexedAccess`) · Tailwind CSS · TanStack Query + Virtual · Fathom UI · Vitest + Testing Library + jest-axe · Playwright.
+Next.js 14 (App Router) · React 18 · TypeScript (strict, `noUncheckedIndexedAccess`) · Tailwind CSS · TanStack Query · Fathom UI · Vitest + Testing Library + jest-axe · Playwright.
 
 ## Getting started
 
@@ -65,7 +66,7 @@ npm run e2e         # Playwright smoke (builds + starts, then drives a browser)
 
 ## Testing & accessibility
 
-- **54 unit/component tests.** The aggregation math and chart geometry are the most heavily covered — deltas, refund-rate denominators, seat-fill clamping, day-bucketing, tick selection, arc sweeps.
+- **59 unit/component tests.** The aggregation math and chart geometry are the most heavily covered — deltas, refund-rate denominators, seat-fill clamping, day-bucketing, tick selection, arc sweeps — plus the transactions table's filtering and pagination.
 - **Automated a11y.** Every chart component asserts `toHaveNoViolations()` via `jest-axe`.
 - **E2E smoke.** Playwright verifies the dashboard loads with data, cross-filtering updates the URL, and range presets work.
 

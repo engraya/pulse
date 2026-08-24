@@ -22,4 +22,15 @@ test.describe("Pulse dashboard", () => {
     await page.getByRole("button", { name: "7D" }).click();
     await expect(page).toHaveURL(/days=7/);
   });
+
+  test("paginates and filters the transactions table", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByText(/Page 1 \//)).toBeVisible();
+    await page.getByRole("button", { name: /Next/ }).click();
+    await expect(page.getByText(/Page 2 \//)).toBeVisible();
+
+    // Filtering to refunded resets back to page 1.
+    await page.getByLabel("Status").selectOption("refunded");
+    await expect(page.getByText(/Page 1 \//)).toBeVisible();
+  });
 });
