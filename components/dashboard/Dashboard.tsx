@@ -17,10 +17,10 @@ import { FilterBar } from "./FilterBar";
 import { KpiCards } from "./KpiCards";
 import { LiveTransactions } from "./LiveTransactions";
 import { LiveBadge } from "./LiveBadge";
-import { ChartCard } from "@/components/charts/ChartCard";
-import { AreaChart } from "@/components/charts/AreaChart";
-import { DonutChart } from "@/components/charts/DonutChart";
-import { RouteBars } from "@/components/charts/RouteBars";
+import { Panel, AreaChart, DonutChart, BarChart } from "@engraya/sonar";
+import { PROVIDER_LABEL } from "@/lib/data/types";
+import { PROVIDER_COLOR } from "@/lib/charts/palette";
+import { formatKobo, formatKoboCompact } from "@/lib/format";
 
 const MAX_LIVE = 3000;
 
@@ -90,12 +90,21 @@ export function Dashboard() {
     // Route bars ignore the active route so you can still switch between routes.
     const allRoutesInRange = filterTransactions(all, { range, routeId: null });
 
+    const series = revenueSeries(current, range);
+    const providers = providerSplit(current);
+    const routeRows = bookingsByRoute(allRoutesInRange);
+
     return {
       kpis: computeKpis(current, previous, range, routeId),
       daily: dailyKpis(current, range, routeId),
-      series: revenueSeries(current, range),
-      routeRows: bookingsByRoute(allRoutesInRange),
-      providers: providerSplit(current),
+      // Shaped for Sonar's generic chart props.
+      area: series.map((b) => ({ x: new Date(b.t), y: b.revenueKobo })),
+      donut: providers.map((s) => ({
+        label: PROVIDER_LABEL[s.provider],
+        value: s.revenueKobo,
+        color: PROVIDER_COLOR[s.provider],
+      })),
+      routes: routeRows.map((r) => ({ id: r.routeId, label: r.name, value: r.revenueKobo })),
       feed: [...current].sort((a, b) => b.createdAt - a.createdAt),
     };
   }, [data, liveTxns, days, routeId]);
@@ -133,33 +142,45 @@ export function Dashboard() {
           <KpiCards kpis={view.kpis} daily={view.daily} />
 
           <div className="grid gap-4 lg:grid-cols-3">
-            <ChartCard
+            <Panel
               title="Gross revenue"
               subtitle="Successful payments per day"
               className="lg:col-span-2"
             >
-              <AreaChart data={view.series} />
-            </ChartCard>
+              <AreaChart
+                data={view.area}
+                valueFormat={formatKoboCompact}
+                xLabel="Date"
+                yLabel="Revenue"
+                caption="Daily gross revenue"
+              />
+            </Panel>
 
-            <ChartCard title="Payment provider mix" subtitle="Share of successful revenue">
-              <DonutChart slices={view.providers} />
-            </ChartCard>
+            <Panel title="Payment provider mix" subtitle="Share of successful revenue">
+              <DonutChart data={view.donut} valueFormat={formatKobo} caption="Revenue share by payment provider" />
+            </Panel>
 
-            <ChartCard
+            <Panel
               title="Top routes"
               subtitle="Click a route to filter the dashboard"
               className="lg:col-span-3"
             >
-              <RouteBars rows={view.routeRows} activeRouteId={routeId} onSelect={setRouteId} />
-            </ChartCard>
+              <BarChart
+                data={view.routes}
+                activeId={routeId}
+                onSelect={setRouteId}
+                valueFormat={formatKoboCompact}
+                emptyMessage="No bookings in this window."
+              />
+            </Panel>
 
-            <ChartCard
+            <Panel
               title="Live transactions"
               subtitle={`${view.feed.length.toLocaleString()} in range`}
               className="lg:col-span-3"
             >
               <LiveTransactions transactions={view.feed} />
-            </ChartCard>
+            </Panel>
           </div>
         </div>
       )}
