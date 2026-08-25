@@ -2,6 +2,8 @@
    consumes them, then Tailwind (below) maps semantic colors onto the same
    variables so the whole app themes from one contract. */
 @import "@engraya/fathom-ui/styles.css";
+/* Sonar dashboard-kit styles; its --sonar-* tokens fall back to Fathom's above. */
+@import "@engraya/sonar/styles.css";
 
 @tailwind base;
 @tailwind components;

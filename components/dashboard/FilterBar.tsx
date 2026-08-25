@@ -1,7 +1,7 @@
 "use client";
 
-import { clsx } from "clsx";
 import { Switch } from "@engraya/fathom-ui";
+import { SegmentedControl } from "@engraya/sonar";
 import { RANGE_PRESETS, type RangeDays } from "@/lib/filters";
 import { useTheme } from "@/lib/useTheme";
 import type { Route } from "@/lib/data/types";
@@ -29,23 +29,13 @@ export function FilterBar({
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      {/* Range presets */}
-      <div role="group" aria-label="Date range" className="inline-flex rounded-fathom border border-border bg-surface p-0.5">
-        {RANGE_PRESETS.map((p) => (
-          <button
-            key={p.days}
-            type="button"
-            aria-pressed={days === p.days}
-            onClick={() => onDaysChange(p.days as RangeDays)}
-            className={clsx(
-              "rounded-[calc(var(--fathom-radius)-2px)] px-3 py-1 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fathom-ring)]",
-              days === p.days ? "bg-primary text-[var(--fathom-primary-fg)]" : "text-muted hover:text-fg"
-            )}
-          >
-            {p.label}
-          </button>
-        ))}
-      </div>
+      {/* Range presets (Sonar SegmentedControl) */}
+      <SegmentedControl
+        ariaLabel="Date range"
+        value={String(days)}
+        onChange={(v) => onDaysChange(Number(v) as RangeDays)}
+        options={RANGE_PRESETS.map((p) => ({ label: p.label, value: String(p.days) }))}
+      />
 
       {/* Route filter */}
       <label className="flex items-center gap-2 text-sm text-muted">
