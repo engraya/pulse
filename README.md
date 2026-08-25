@@ -4,7 +4,7 @@ A real-time **transport & payments analytics dashboard** for an intercity bus op
 
 [![CI](https://github.com/engraya/pulse/actions/workflows/ci.yml/badge.svg)](https://github.com/engraya/pulse/actions/workflows/ci.yml)
 
-> Part of my portfolio's flagship set. The UI is built on my own design system, [`@engraya/fathom-ui`](https://www.npmjs.com/package/@engraya/fathom-ui), so the two projects share one theming contract.
+> Part of my portfolio's flagship set, and the reference app for my own libraries: the charts, KPI tiles and filters come from my dashboard kit [`@engraya/sonar`](https://github.com/engraya/sonar), themed by my design system [`@engraya/fathom-ui`](https://www.npmjs.com/package/@engraya/fathom-ui) — one theming contract across all three.
 
 ## Why this exists
 
@@ -37,11 +37,13 @@ The domain — intercity transport payments across Paystack / Monnify / Nomba �
 | Charts | `lib/charts/scale.ts` holds the geometry (linear scales, nice ticks, line/area/arc path builders); the components in `components/charts/` are thin SVG renderers over it. |
 | Data fetching | `@tanstack/react-query` for the historical load; a polling effect accumulates the live feed. |
 | State | Filters (`days`, `route`) live in the URL via `history.replaceState`. |
-| UI | `@engraya/fathom-ui` for Badge / Switch, Tailwind mapped onto Fathom's design tokens. |
+| UI | Charts / KPI tiles / filters from `@engraya/sonar`; `@engraya/fathom-ui` for Badge / Switch. Tailwind maps onto the shared design tokens. |
 
 ## Tech stack
 
-Next.js 14 (App Router) · React 18 · TypeScript (strict, `noUncheckedIndexedAccess`) · Tailwind CSS · TanStack Query · Fathom UI · Vitest + Testing Library + jest-axe · Playwright.
+Next.js 14 (App Router) · React 18 · TypeScript (strict, `noUncheckedIndexedAccess`) · Tailwind CSS · TanStack Query · Sonar (dashboard kit) · Fathom UI (design system) · Vitest + Testing Library + jest-axe · Playwright.
+
+> **Note:** during local development this branch links Sonar via `file:../sonar`. Once `@engraya/sonar` is published to npm, switch the dependency with `npm install @engraya/sonar@^0.2.0` so the app builds on CI/Vercel from the registry.
 
 ## Getting started
 

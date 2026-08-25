@@ -1,103 +1,53 @@
 "use client";
 
-import { Badge } from "@engraya/fathom-ui";
-import { Sparkline } from "@/components/charts/Sparkline";
-import { formatKobo, formatKoboCompact, formatNumber, formatPercent, formatDelta } from "@/lib/format";
+import { KpiTile, StatGrid } from "@engraya/sonar";
+import { formatKobo, formatKoboCompact, formatNumber, formatPercent } from "@/lib/format";
 import type { DailyKpi } from "@/lib/data/aggregate";
-import type { Kpis, Metric } from "@/lib/data/types";
+import type { Kpis } from "@/lib/data/types";
 
-interface CardSpec {
-  id: string;
-  label: string;
-  metric: Metric;
-  display: string;
-  series: number[];
-  /** When true, a rising value is bad (e.g. refund rate). */
-  invert?: boolean;
-  color?: string;
-}
-
-function DeltaBadge({ metric, invert }: { metric: Metric; invert?: boolean }) {
-  const { delta } = metric;
-  if (delta === null) return <Badge variant="neutral">—</Badge>;
-  // Movements below 0.05% round to "0.0%" — show them as flat, not a red −0.0%.
-  const flat = Math.abs(delta) < 0.0005;
-  const rising = !flat && delta > 0;
-  const falling = !flat && delta < 0;
-  const good = invert ? falling : rising;
-  const variant = flat ? "neutral" : good ? "success" : "danger";
-  return (
-    <Badge variant={variant}>
-      {rising ? "▲" : falling ? "▼" : "•"} {formatDelta(flat ? 0 : delta)}
-    </Badge>
-  );
-}
-
-function KpiCard({ label, metric, display, series, invert, color }: CardSpec) {
-  return (
-    <div className="rounded-fathom border border-border bg-surface p-4">
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted">{label}</p>
-        <DeltaBadge metric={metric} invert={invert} />
-      </div>
-      <div className="mt-2 flex items-end justify-between gap-2">
-        <p className="text-2xl font-semibold tabular-nums text-fg">{display}</p>
-        <Sparkline values={series} color={color} ariaLabel={`${label} trend`} />
-      </div>
-      <p className="mt-1 text-xs text-muted">vs previous period</p>
-    </div>
-  );
-}
-
+/**
+ * The five headline KPIs, rendered with Sonar's KpiTile + StatGrid. Pulse owns
+ * the domain math (kobo, seat-fill, refund rate); Sonar owns the presentation
+ * (delta badge, sparkline, responsive grid).
+ */
 export function KpiCards({ kpis, daily }: { kpis: Kpis; daily: DailyKpi[] }) {
-  const cards: CardSpec[] = [
-    {
-      id: "revenue",
-      label: "Gross revenue",
-      metric: kpis.grossRevenueKobo,
-      display: formatKoboCompact(kpis.grossRevenueKobo.value),
-      series: daily.map((d) => d.revenueKobo),
-    },
-    {
-      id: "bookings",
-      label: "Bookings",
-      metric: kpis.bookings,
-      display: formatNumber(kpis.bookings.value),
-      series: daily.map((d) => d.bookings),
-      color: "#8b5cf6",
-    },
-    {
-      id: "avg",
-      label: "Avg fare",
-      metric: kpis.avgFareKobo,
-      display: formatKobo(kpis.avgFareKobo.value),
-      series: daily.map((d) => d.avgFareKobo),
-      color: "#0ea5e9",
-    },
-    {
-      id: "seat",
-      label: "Seat fill",
-      metric: kpis.seatFillRate,
-      display: formatPercent(kpis.seatFillRate.value),
-      series: daily.map((d) => d.seatFillRate),
-      color: "#22c55e",
-    },
-    {
-      id: "refund",
-      label: "Refund rate",
-      metric: kpis.refundRate,
-      display: formatPercent(kpis.refundRate.value),
-      series: daily.map((d) => d.refundRate),
-      invert: true,
-      color: "#f43f5e",
-    },
-  ];
-
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-      {cards.map((c) => (
-        <KpiCard key={c.id} {...c} />
-      ))}
-    </div>
+    <StatGrid min={2} sm={3} lg={5}>
+      <KpiTile
+        label="Gross revenue"
+        value={formatKoboCompact(kpis.grossRevenueKobo.value)}
+        delta={kpis.grossRevenueKobo.delta}
+        sparkline={daily.map((d) => d.revenueKobo)}
+      />
+      <KpiTile
+        label="Bookings"
+        value={formatNumber(kpis.bookings.value)}
+        delta={kpis.bookings.delta}
+        sparkline={daily.map((d) => d.bookings)}
+        sparklineColor="#8b5cf6"
+      />
+      <KpiTile
+        label="Avg fare"
+        value={formatKobo(kpis.avgFareKobo.value)}
+        delta={kpis.avgFareKobo.delta}
+        sparkline={daily.map((d) => d.avgFareKobo)}
+        sparklineColor="#0ea5e9"
+      />
+      <KpiTile
+        label="Seat fill"
+        value={formatPercent(kpis.seatFillRate.value)}
+        delta={kpis.seatFillRate.delta}
+        sparkline={daily.map((d) => d.seatFillRate)}
+        sparklineColor="#22c55e"
+      />
+      <KpiTile
+        label="Refund rate"
+        value={formatPercent(kpis.refundRate.value)}
+        delta={kpis.refundRate.delta}
+        invertDelta
+        sparkline={daily.map((d) => d.refundRate)}
+        sparklineColor="#f43f5e"
+      />
+    </StatGrid>
   );
 }
