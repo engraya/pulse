@@ -1,0 +1,15 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "main",
+    "refactor/use-sonar"
+  ],
+  "parent": {
+    "main": null,
+    "refactor/use-sonar": "main"
+  },
+  "order": [
+    "main",
+    "refactor/use-sonar"
+  ]
+}
